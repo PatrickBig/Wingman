@@ -1,0 +1,50 @@
+﻿@if (_mission == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <h3>Objectives</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Text</th>
+                <th>Status</th>
+                <th>Primary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (_mission != null && _mission.Objectives != null)
+            {
+                @foreach (var objective in _mission.Objectives)
+                {
+                    <tr>
+                        <td>@objective.Text</td>
+                        <td>@objective.Status</td>
+                        <td>@objective.Primary</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Mission? _mission;
+
+    [Inject]
+    private HttpClient Http { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _mission = await Http.GetFromJsonAsync<Mission>("mission.json");
+        }
+        catch
+        {
+
+        }
+        
+    }
+}

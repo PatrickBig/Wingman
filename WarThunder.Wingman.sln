@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarThunder.Wingman", "WarThunder.Wingman\WarThunder.Wingman.csproj", "{F83CF18C-C00E-44AD-A6A9-B0E58ED492D7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarThunder.Shared", "WarThunder.Shared\WarThunder.Shared.csproj", "{EE266E6E-5DD2-4E14-8C9C-7F76569E5BC6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F83CF18C-C00E-44AD-A6A9-B0E58ED492D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F83CF18C-C00E-44AD-A6A9-B0E58ED492D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F83CF18C-C00E-44AD-A6A9-B0E58ED492D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F83CF18C-C00E-44AD-A6A9-B0E58ED492D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE266E6E-5DD2-4E14-8C9C-7F76569E5BC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE266E6E-5DD2-4E14-8C9C-7F76569E5BC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE266E6E-5DD2-4E14-8C9C-7F76569E5BC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE266E6E-5DD2-4E14-8C9C-7F76569E5BC6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {87815F18-2D4B-4D31-976F-16CE1C6787E9}
+	EndGlobalSection
+EndGlobal

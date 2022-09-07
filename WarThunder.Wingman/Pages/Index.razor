@@ -1,0 +1,50 @@
+﻿@page "/"
+@using System.Text.Json
+@using WarThunder.Wingman
+
+<PageTitle>Wingman</PageTitle>
+<Row>
+    <Column>
+        <CombatMap />
+    </Column>
+    <Column>
+        <MissionObjectives />
+        <EventStream />
+    </Column>
+</Row>
+
+@code {
+    private MapInformation? _currentMapInformation;
+
+    private EventCallback<MapInformation> MapChanged { get; set; }
+
+    [Inject]
+    private HttpClient Http { get; set; } = null!;
+
+
+    [Inject]
+    private ILogger<Index> Logger { get; set; } = null!;
+
+    private async Task UpdateMapInformationAsync()
+    {
+        try
+        {
+            var mapInformation = await Http.GetFromJsonAsync<MapInformation>("map_info.json");
+
+            // Check if the map has changed
+            if (mapInformation?.MapGeneration != _currentMapInformation?.MapGeneration)
+            {
+                // Map has changed.
+                _currentMapInformation = mapInformation;
+
+                await MapChanged.InvokeAsync(mapInformation);
+            }
+        }
+        catch (JsonException ex)
+        {
+            // The HTTP call will result in an empty response if there is no map loaded. I don't particularly like handling it this way but whateva
+            _currentMapInformation = null;
+            Logger.LogError("Failed to get map information", ex);
+        }
+    }
+}

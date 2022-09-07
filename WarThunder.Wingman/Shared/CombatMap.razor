@@ -1,0 +1,4 @@
+﻿@if (_mapOptions != null)
+{
+    <Excubo.Blazor.Canvas.Canvas id="map-canvas" @ref="_canvas" width="@(_mapOptions.Width + "px")" height="@(_mapOptions.Height + "px")" @onmousewheel="OnZoom" @onmousedown="MouseDown" @onmouseup="MouseUp" @onmousemove="MouseMove" />
+}

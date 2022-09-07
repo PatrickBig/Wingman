@@ -1,0 +1,101 @@
+﻿@using WarThunder.Wingman.Utilities
+
+<Table @ref="@_table" FixedHeader FixedHeaderTableHeight="300px" Narrow >
+    <TableHeader>
+        <TableRow>
+            <TableHeaderCell>
+                Time
+            </TableHeaderCell>
+            <TableHeaderCell>
+                Event
+            </TableHeaderCell>
+        </TableRow>
+    </TableHeader>
+    <TableBody>
+        @if (_events != null && _events.Any())
+        {
+            @foreach (var r in _events)
+            {
+                <TableRow>
+                    <TableRowCell>
+                        @(r.Minutes + ":" + r.Seconds)
+                    </TableRowCell>
+                    <TableRowCell>
+                        @r.Message
+                    </TableRowCell>
+                </TableRow>
+            }
+        }
+        else
+        {
+            <TableRow></TableRow>
+        }
+    </TableBody>
+</Table>
+
+@code {
+    private Table? _table;
+    private int _lastEventId = 0;
+    private int _lastDamageId = 0;
+    private List<HudMessage> _events = new();
+    public int HudEventLimit { get; set; } = 500;
+    private Timer? _refreshTimer;
+
+    [Inject]
+    private HttpClient Http { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Start the timer to keep the information updated
+        _refreshTimer = new Timer(async async =>
+        {
+            await UpdateEventDataAsync();
+        }, null, 0, 500);
+
+        await base.OnInitializedAsync();
+    }
+
+    private Task OnDrag(DragEventArgs e)
+    {
+        Console.WriteLine("Drag");
+        return Task.CompletedTask;
+    }
+
+    private async Task UpdateEventDataAsync()
+    {
+        try
+        {
+            var queryParams = $"?lastEvt={_lastEventId}&lastDmg={_lastDamageId}";
+            var response = await Http.GetFromJsonAsync<HudStreamEvent>($"hudmsg{queryParams}");
+
+            if (response != null)
+            {
+                if (response.Events.Any())
+                {
+                    // Add them to the queue
+                    _events.AddRange(response.Events);
+
+                    _lastEventId = response.Events.Max(e => e.Id);
+                }
+
+                if (response.Damage.Any())
+                {
+                    // Add them to the queue
+                    _events.AddRange(response.Damage);
+                    _lastDamageId = response.Damage.Max(d => d.Id);
+                }
+            }
+
+            StateHasChanged();
+        }
+        catch (Exception)
+        {
+        }
+    }
+
+    private class HudStreamEvent
+    {
+        public HudMessage[] Damage { get; set; } = Array.Empty<HudMessage>();
+        public HudMessage[] Events { get; set; } = Array.Empty<HudMessage>();
+    }
+}
