@@ -1,0 +1,23 @@
+name: .NET
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    - name: Install WASM Build Tools
+      run: dotnet workload install wasm-tools
+    - name: Publish project output
+      run: dotnet publish WarThunder.Wingman/WarThunder.Wingman.csproj -c:Release -p:GHPages=true -o dist/Web --nologo
