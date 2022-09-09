@@ -38,6 +38,8 @@ jobs:
       run: dotnet publish WarThunder.Wingman/WarThunder.Wingman.csproj -c:Release -p:GHPages=true -o dist/Web --nologo
     - name: Setup Pages
       uses: actions/configure-pages@v2
+    - name: Debug output
+      run: ls dist/Web/
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v1
       with:
