@@ -2,7 +2,7 @@ name: .NET
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "feature/pages" ]
   pull_request:
     branches: [ "main" ]
 
@@ -21,3 +21,13 @@ jobs:
       run: dotnet workload install wasm-tools
     - name: Publish project output
       run: dotnet publish WarThunder.Wingman/WarThunder.Wingman.csproj -c:Release -p:GHPages=true -o dist/Web --nologo
+    - name: Setup Pages
+      uses: actions/configure-pages@v2
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v1
+      with:
+        # Upload entire repository
+        path: dist/Web
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v1
