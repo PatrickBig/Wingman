@@ -35,16 +35,16 @@ jobs:
     - name: Install WASM Build Tools
       run: dotnet workload install wasm-tools
     - name: Publish project output
-      run: dotnet publish WarThunder.Wingman/WarThunder.Wingman.csproj -c:Release -p:GHPages=true -o dist/Web --nologo
+      run: dotnet publish WarThunder.Wingman/WarThunder.Wingman.csproj -c:Release -o dist/Web --nologo
     - name: Setup Pages
       uses: actions/configure-pages@v2
-    - name: Debug output
-      run: ls dist/Web/
+    - name: Change base-tag in index.html from / to Wingman
+      run: sed -i 's/<base href="\/" \/>/<base href="\/Wingman\/" \/>/g' dist/Web/wwwroot/index.html
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v1
       with:
         # Upload entire repository
-        path: 'dist/Web/.'
+        path: 'dist/Web/wwwroot/.'
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v1
