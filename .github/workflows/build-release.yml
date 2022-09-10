@@ -1,0 +1,44 @@
+name: Build and publish release
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0.9.13
+      with:
+        versionSpec: '5.x'
+    - name: Determine Version
+      uses: gittools/actions/gitversion/execute@v0.9.7
+      with:
+        additionalArguments: '/updateprojectfiles'
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    - name: Install WASM Build Tools
+      run: dotnet workload install wasm-tools
+    - name: Publish project output
+      run: dotnet publish WarThunder.Wingman/WarThunder.Wingman.csproj -c:Release -o dist/web --nologo
+    - uses: actions/upload-artifact@v3
+      with:
+        name: wingman
+        path: dist/web/
+    - name: Zip release output
+      run: zip -r Wingman.zip dist/web
