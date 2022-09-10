@@ -1,14 +1,29 @@
-name: .NET
+name: Publish GitHub Pages
 
 on:
   push:
-    branches: [ "main", "feature/pages" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
   build:
-
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
 
     steps:
@@ -20,14 +35,14 @@ jobs:
     - name: Install WASM Build Tools
       run: dotnet workload install wasm-tools
     - name: Publish project output
-      run: dotnet publish WarThunder.Wingman/WarThunder.Wingman.csproj -c:Release -p:GHPages=true -o dist/Web --nologo
+      run: dotnet publish WarThunder.Wingman/WarThunder.Wingman.csproj -c:Release -o dist/Web --nologo
     - name: Setup Pages
       uses: actions/configure-pages@v2
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v1
       with:
         # Upload entire repository
-        path: dist/Web
+        path: 'dist/Web/wwwroot/.'
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v1
