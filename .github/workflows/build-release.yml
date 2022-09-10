@@ -39,9 +39,16 @@ jobs:
       run: dotnet workload install wasm-tools
     - name: Publish project output
       run: dotnet publish WarThunder.Wingman/WarThunder.Wingman.csproj -c:Release -o dist/web --nologo
+    - name: Zip release output
+      run: zip -r Wingman.zip dist/web/wwwroot
     - uses: actions/upload-artifact@v3
       with:
         name: wingman
-        path: dist/web/
-    - name: Zip release output
-      run: zip -r Wingman.zip dist/web
+        path: Wingman.zip
+    - name: Release
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: true
+        files: |
+          *.zip
