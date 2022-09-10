@@ -1,12 +1,8 @@
-name: Build and publish release
+name: Build
 
 on:
-  push:
-    branches: [ "feature/devops/git-version" ]
-  pull_request:
-    branches: [ "main" ]
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  workflow_call:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -44,11 +40,4 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: wingman
-        path: Wingman.zip
-    - name: Release
-      uses: "marvinpinto/action-automatic-releases@latest"
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        prerelease: true
-        files: |
-          *.zip
+        path: dist/web/wwwroot
