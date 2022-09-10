@@ -2,7 +2,7 @@ name: Build and publish release
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "feature/devops/git-version" ]
   pull_request:
     branches: [ "main" ]
   # Allows you to run this workflow manually from the Actions tab
