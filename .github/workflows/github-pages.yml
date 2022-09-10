@@ -38,8 +38,6 @@ jobs:
       run: dotnet publish WarThunder.Wingman/WarThunder.Wingman.csproj -c:Release -o dist/Web --nologo
     - name: Setup Pages
       uses: actions/configure-pages@v2
-    - name: Change base-tag in index.html from / to Wingman
-      run: sed -i 's/<base href="\/" \/>/<base href="\/Wingman\/" \/>/g' dist/Web/wwwroot/index.html
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v1
       with:
