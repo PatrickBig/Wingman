@@ -8,13 +8,14 @@ using Microsoft.JSInterop;
 using System.Net.Http.Json;
 using System.Numerics;
 using System.Text.Json;
+using WarThunder.Wingman.Services;
 
 namespace WarThunder.Wingman.Shared
 {
-    public partial class CombatMap
+    public partial class CombatMap: IDisposable
     {
         private MapInformation? _mapInformation;
-        private MapObject[]? _mapObjects;
+        private MapObject[] _mapObjects = Array.Empty<MapObject>();
         private Canvas? _canvas;
         private CombatMapOptions _mapOptions = new();
 
@@ -41,7 +42,10 @@ namespace WarThunder.Wingman.Shared
         private bool _isPanning = false;
         private double[] _previousMousePosition = new double[] { 0, 0 };
 
-        
+        //await using var context = await _canvas.GetContext2DAsync();
+        private Context2D? _context;
+
+
         [Parameter]
         public EventCallback<MapInformation> MapChanged { get; set; }
 
@@ -49,7 +53,7 @@ namespace WarThunder.Wingman.Shared
         private HttpClient Http { get; set; } = null!;
 
         [Inject]
-        private IOptions<WarThunderOptions> WarThunderOptions { get; set; } = null!;
+        private IOptions<WingmanOptions> WarThunderOptions { get; set; } = null!;
 
         [Inject]
         private ILogger<CombatMap> Logger { get; set; } = null!;
@@ -58,21 +62,41 @@ namespace WarThunder.Wingman.Shared
         private IJSRuntime JSRuntime { get; set; } = null!;
 
         [Inject]
+        private IGameInformationService GameInfoService { get; set; } = null!;
+
+        [Inject]
         ISyncLocalStorageService LocalStorage { get; set; } = null!;
 
         protected override async Task OnInitializedAsync()
         {
-
-            // Initialize the map options
-            var mapOptions = LocalStorage.GetItem<CombatMapOptions>("combat-map-settings");
-
-            if (mapOptions == null)
-            {
-                mapOptions = new CombatMapOptions();
-                LocalStorage.SetItem<CombatMapOptions>("combat-map-settings", mapOptions);
-            }
-
             await base.OnInitializedAsync();
+
+            GameInfoService.MapObjectsUpdated += MapObjectsUpdated;
+            GameInfoService.MapInformationChanged += MapInformationChanged;
+
+            _mapInformation = GameInfoService.GetMapInformation();
+        }
+
+        private async void MapInformationChanged(object? sender, MapInformation e)
+        {
+            _currentMapGen = e.MapGeneration;
+            _mapInformation = e;
+            //_lastMapGen = _currentMapGen;
+
+            // Reset zoom/scale.
+            if (e != null)
+            {
+                _mapScale = 1.0;
+                _mapPan[0] = 0;
+                _mapPan[1] = 0;
+                await JSRuntime.InvokeVoidAsync("eval", $"mapImage.src = \"{(WarThunderOptions.Value.WarThunderEndpoint + MapHelpers.GetMapImageUrl(e.MapGeneration))}\";");
+            }
+            
+        }
+
+        private void MapObjectsUpdated(object? sender, MapObject[] e)
+        {
+            _mapObjects = e;
         }
 
         private double UpdateTimers()
@@ -137,24 +161,24 @@ namespace WarThunder.Wingman.Shared
             }
         }
 
-        private async Task UpdateMapObjectsAsync()
-        {
-            try
-            {
-                _mapObjects = await Http.GetFromJsonAsync<MapObject[]>("map_obj.json");
+        //private async Task UpdateMapObjectsAsync()
+        //{
+        //    try
+        //    {
+        //        //_mapObjects = await Http.GetFromJsonAsync<MapObject[]>("map_obj.json");
 
-                var delta = UpdateTimers();
-                if (!_isPanning)
-                {
-                    await RedrawMap(delta);
-                }
-            }
-            catch (JsonException)
-            {
-                // The map info is no longer valid. Most likely changed maps.
-                _mapObjects = Array.Empty<MapObject>();
-            }
-        }
+        //        var delta = UpdateTimers();
+        //        if (!_isPanning)
+        //        {
+        //            await RedrawMap(delta);
+        //        }
+        //    }
+        //    catch (JsonException)
+        //    {
+        //        // The map info is no longer valid. Most likely changed maps.
+        //        //_mapObjects = Array.Empty<MapObject>();
+        //    }
+        //}
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -164,9 +188,17 @@ namespace WarThunder.Wingman.Shared
                 // Launch the timer
                 _refreshTimer = new Timer(async _ =>
                 {
-                    await UpdateMapInformationAsync();
-                    await UpdateMapObjectsAsync();
-                }, null, 0, 500);
+                    //await UpdateMapInformationAsync();
+                    //await UpdateMapObjectsAsync();
+
+                    var delta = UpdateTimers();
+                    if (!_isPanning)
+                    {
+                        await RedrawMap(delta);
+                    }
+
+
+                }, null, 0, 100);
 
             }
 
@@ -521,6 +553,12 @@ namespace WarThunder.Wingman.Shared
             {
                 return (null, null);
             }
+        }
+
+        public void Dispose()
+        {
+            GameInfoService.MapObjectsUpdated -= MapObjectsUpdated;
+            GameInfoService.MapInformationChanged -= MapInformationChanged;
         }
     }
 }

@@ -10,10 +10,10 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 // Configure endpoint default
-builder.Services.Configure<WarThunderOptions>(builder.Configuration.GetSection(nameof(WarThunderOptions)));
-var warThunderOptions = builder.Configuration.GetSection(nameof(WarThunderOptions)).Get<WarThunderOptions>();
+builder.Services.Configure<WingmanOptions>(builder.Configuration.GetSection(nameof(WingmanOptions)));
+var warThunderOptions = builder.Configuration.GetSection(nameof(WingmanOptions)).Get<WingmanOptions>();
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(warThunderOptions.WarThunderEndpoint) });
+builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(warThunderOptions.WarThunderEndpoint) });
 builder.Services.AddBlazorise(options =>
 {
     options.Immediate = true;
@@ -22,5 +22,7 @@ builder.Services.AddBlazorise(options =>
 .AddFontAwesomeIcons();
 
 builder.Services.AddBlazoredLocalStorage();
+
+builder.Services.AddWingmanServices();
 
 await builder.Build().RunAsync();
